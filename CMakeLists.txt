@@ -1,0 +1,54 @@
+cmake_minimum_required(VERSION 3.0.0)
+project(adio VERSION 0.0.0 LANGUAGES CXX)
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
+set(CMAKE_INCLUDE_CURRENT_DIR TRUE)
+
+include(CTest)
+enable_testing()
+
+find_package(Pew QUIET)
+
+if(Pew_FOUND)
+    find_package(boost QUIET)
+    find_package(asio QUIET)
+    find_package(sqlite REQUIRED)
+else()
+    find_package(Boost QUIET)
+endif()
+
+if(NOT boost_FOUND AND NOT Boost_FOUND)
+    set(have_boost NO)
+    find_package(asio QUIET)
+    set(default_backend asio)
+else()
+    set(have_boost TRUE)
+    set(default_backend boost)
+endif()
+
+set(can_build TRUE)
+if(NOT have_boost AND NOT asio_FOUND)
+    message(SEND_ERROR "Cannot build tests/examples without either Boost or asio installed")
+endif()
+
+set(ASIO_BACKEND "${default_backend}" CACHE STRING "Choose the asio type to use (boost/vanilla)")
+set_property(CACHE ASIO_BACKEND PROPERTY STRINGS boost vanilla)
+message(STATUS "Targeting the \"${ASIO_BACKEND}\" asio backend")
+
+if(ASIO_BACKEND STREQUAL vanilla)
+    find_package(asio REQUIRED)
+endif()
+
+add_subdirectory(source)
+if(BUILD_TESTING)
+    find_package(catch)
+    if(NOT catch_FOUND)
+        message(WARNING "Cannot build the tests without Catch")
+    else()
+        add_subdirectory(tests)
+    endif()
+endif()
+
+if(Pew_FOUND)
+    pew_export_project()
+endif()

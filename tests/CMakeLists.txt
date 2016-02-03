@@ -1,0 +1,8 @@
+foreach(test connection empty sqlite value)
+    add_executable(test.${test} ${test}.cpp)
+    catch_add_tests(adio test.${test})
+    target_link_libraries(test.${test} PUBLIC adio boost::coroutine boost::thread)
+    if(TARGET adio::${test})
+        target_link_libraries(test.${test} PRIVATE adio::${test})
+    endif()
+endforeach()
