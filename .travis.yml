@@ -9,7 +9,7 @@ env:
     - BT=Debug
 
 before_install:
-    - sudo add-apt-repository ppa:kzemek/boost
+    - sudo add-apt-repository ppa:kzemek/boost -y
     - sudo apt-get -y update -qq
 
 install:
