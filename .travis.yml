@@ -1,0 +1,14 @@
+language: cpp
+
+compiler:
+    - clang
+    - gcc
+
+env:
+    - BT=Release
+    - BT=Debug
+
+script:
+    - cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=${BT}
+    - cmake --build build
+    - cmake -E chdir build ctest
