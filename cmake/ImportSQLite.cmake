@@ -1,5 +1,5 @@
 find_library(SQLITE_LIBRARY NAMES libsqlite3.a sqlite3.lib libsqlite3.lib)
-find_path(SQLITE_DIR sqlite/sqlite3.h)
+find_path(SQLITE_DIR sqlite3.h)
 
 if(NOT SQLITE_LIBRARY)
     message(FATAL_ERROR "Cannot find SQLite")
