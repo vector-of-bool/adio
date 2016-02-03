@@ -11,6 +11,9 @@ add_library(adio
     adio/connection.hpp
     adio/connection.cpp
     adio/driver.hpp
+    adio/value.hpp
+    adio/value.cpp
+    adio/row.hpp
     )
 
 target_link_libraries(adio PUBLIC boost::variant)

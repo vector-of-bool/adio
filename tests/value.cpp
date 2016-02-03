@@ -7,7 +7,7 @@ using adio::value;
 TEST_CASE("Null values")
 {
     value v;
-    auto b = v == nullptr;
+    auto b = v == adio::null;
     CHECK(b);
     auto b2 = v.get_type() == adio::type::null_t;
     CHECK(b2);

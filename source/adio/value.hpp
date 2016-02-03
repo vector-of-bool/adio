@@ -26,6 +26,12 @@ enum class type
     datetime,
 };
 
+class null_t final : public boost::operators<null_t> {
+    bool operator==(null_t) const { return true; }
+    bool operator<(null_t) const { return false; }
+};
+extern null_t null;
+
 class invalid_access : public std::runtime_error
 {
 public:
@@ -55,7 +61,7 @@ struct has_value_adaptor<T, void_t<typename value_adaptor<T>::base_type>>
 class value : boost::operators<value>
 {
 public:
-    using null_t = std::nullptr_t;
+    using null_t = adio::null_t;
     using integer = int64_t;
     using real = double;
     using text = std::string;
@@ -101,8 +107,8 @@ private:
     }
 
 public:
-    value(null_t = nullptr)
-        : _data{nullptr}
+    value(null_t = null)
+        : _data{null}
     {
     }
     template <typename T,
