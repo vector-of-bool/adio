@@ -8,6 +8,11 @@ env:
     - BT=Release
     - BT=Debug
 
+install:
+    - curl -sL -o cmake.sh https://cmake.org/files/v3.5/cmake-3.5.0-rc1-Linux-x86_64.sh
+    - sudo sh cmake.sh --prefix=/usr/local --exclude-subdir
+
+
 script:
     - cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=${BT}
     - cmake --build build
