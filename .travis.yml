@@ -11,4 +11,4 @@ env:
 script:
     - cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=${BT}
     - cmake --build build
-    - cmake -E chdir build ctest
+    - cmake -E chdir build ctest -T Test
