@@ -14,6 +14,8 @@ if(Pew_FOUND)
     find_package(asio QUIET)
     find_package(sqlite REQUIRED)
 else()
+    include(cmake/ImportBoost.cmake)
+    include(cmake/ImportSQLite.cmake)
     find_package(Boost QUIET)
 endif()
 
