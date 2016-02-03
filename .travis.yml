@@ -8,7 +8,7 @@ env:
     - BT=Release
     - BT=Debug
 
-pre_install:
+before_install:
     - sudo apt-get -y update -qq
 
 install:
