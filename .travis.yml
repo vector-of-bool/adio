@@ -1,6 +1,8 @@
 language: cpp
 
-compiler: clang
+compiler:
+    - clang
+    - gcc
 
 env:
     - BT=Release
@@ -8,12 +10,13 @@ env:
 
 before_install:
     - sudo add-apt-repository ppa:boost-latest/ppa -y
+    - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
     - sudo apt-get -y update -qq
 
 install:
     - curl -sL -o cmake.sh https://cmake.org/files/v3.5/cmake-3.5.0-rc1-Linux-x86_64.sh
     - sudo sh cmake.sh --prefix=/usr/local --exclude-subdir
-    - sudo apt-get -y install boost1.54 libsqlite3-dev
+    - sudo apt-get -y install boost1.54 libsqlite3-dev gcc-4.9
 
 
 script:
