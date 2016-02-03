@@ -1,12 +1,11 @@
 language: cpp
 
-compiler:
-    - clang
-    - gcc
-
 env:
-    - BT=Release
-    - BT=Debug
+    global:
+        - CXX=g++-4.9
+    matrix:
+        - BT=Release
+        - BT=Debug
 
 before_install:
     - sudo add-apt-repository ppa:boost-latest/ppa -y
