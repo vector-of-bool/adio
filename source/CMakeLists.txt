@@ -29,7 +29,7 @@ else()
     message(SEND_ERROR "Unknown ASIO_BACKEND: ${ASIO_BACKEND}")
 endif()
 
-target_compile_features(adio PUBLIC cxx_alias_templates cxx_auto_type cxx_variadic_templates cxx_lambdas cxx_lambda_init_captures)
+target_compile_features(adio PUBLIC cxx_alias_templates cxx_auto_type cxx_variadic_templates cxx_lambdas)
 set_property(TARGET adio PROPERTY CXX_EXTENSIONS FALSE)
 
 target_include_directories(adio PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>)
