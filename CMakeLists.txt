@@ -8,6 +8,8 @@ include(CTest)
 enable_testing()
 
 find_package(Pew QUIET)
+include(CMakePackageConfigHelpers)
+
 
 if(Pew_FOUND)
     find_package(boost QUIET)
@@ -41,6 +43,12 @@ if(ASIO_BACKEND STREQUAL vanilla)
     find_package(asio REQUIRED)
 endif()
 
+if(WIN32)
+    set(ADIO_CMAKE_PREFIX cmake)
+else()
+    set(ADIO_CMAKE_PREFIX ${PROJECT_NAME}-${PROJECT_VERSION}/cmake)
+endif()
+
 add_subdirectory(source)
 if(BUILD_TESTING)
     find_package(catch)
@@ -53,4 +61,18 @@ endif()
 
 if(Pew_FOUND)
     pew_export_project()
+else()
+    install(EXPORT adioTargets DESTINATION ${ADIO_CMAKE_PREFIX})
+    write_basic_package_version_file(${PROJECT_NAME}ConfigVersion.cmake COMPATIBILITY SameMajorVersion)
+    configure_package_config_file(${PROJECT_NAME}Config.in.cmake ${PROJECT_NAME}Config.cmake INSTALL_DESTINATION ${ADIO_CMAKE_PREFIX})
+    install(
+        FILES
+            ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
+            ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
+        DESTINATION ${ADIO_CMAKE_PREFIX}
+        )
 endif()
+
+set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
+set(CPACK_OUTPUT_FILE_PREFIX ${CMAKE_CURRENT_BINARY_DIR}/packages)
+include(CPack)

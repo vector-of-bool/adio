@@ -1,5 +1,6 @@
 include(CMakeParseArguments)
 
+set(PEW_HEADER_DIRECTORIES adio)
 add_library(adio
     dummy.cpp
     adio/config.hpp
@@ -28,7 +29,7 @@ else()
     message(SEND_ERROR "Unknown ASIO_BACKEND: ${ASIO_BACKEND}")
 endif()
 
-target_compile_features(adio PUBLIC cxx_alias_templates cxx_auto_type cxx_variadic_templates cxx_lambdas)
+target_compile_features(adio PUBLIC cxx_alias_templates cxx_auto_type cxx_variadic_templates cxx_lambdas cxx_lambda_init_captures)
 set_property(TARGET adio PROPERTY CXX_EXTENSIONS FALSE)
 
 target_include_directories(adio PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>)
@@ -39,6 +40,22 @@ endif()
 
 add_library(adio::adio ALIAS adio)
 
+if(NOT Pew_FOUND)
+    set_property(TARGET adio PROPERTY EXPORT_NAME adio::adio)
+    install(TARGETS adio
+        EXPORT adioTargets
+        RUNTIME DESTINATION bin
+        ARCHIVE DESTINATION lib
+        LIBRARY DESTINATION lib
+        INCLUDES DESTINATION include
+        )
+    install(DIRECTORY adio
+        DESTINATION include
+        FILES_MATCHING
+        PATTERN *.hpp
+        )
+endif()
+
 function(adio_backend name)
     cmake_parse_arguments(
         ARGS
@@ -46,11 +63,28 @@ function(adio_backend name)
         ""
         "SOURCES;LINK_LIBRARIES"
         ${ARGN})
+    set(PEW_HEADER_DIRECTORIES adio)
     add_library(adio-${name} ${ARGS_SOURCES})
     target_link_libraries(adio-${name} PUBLIC adio::adio ${ARGS_LINK_LIBRARIES})
     set_property(TARGET adio-${name} PROPERTY EXPORT_NAME adio::${driver})
     add_library(adio::${name} ALIAS adio-${name})
     target_include_directories(adio-${name} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
+    if(NOT Pew_FOUND)
+        set_property(TARGET adio-${name} PROPERTY EXPORT_NAME adio::${name})
+        install(TARGETS adio-${name}
+            EXPORT adioTargets
+            RUNTIME DESTINATION bin
+            ARCHIVE DESTINATION lib
+            LIBRARY DESTINATION lib
+            INCLUDES DESTINATION include
+            )
+        install(DIRECTORY adio
+            DESTINATION include
+            FILES_MATCHING
+            PATTERN *.hpp
+            )
+    endif()
 endfunction()
 
 add_subdirectory(drivers)
+
