@@ -14,6 +14,8 @@
 namespace adio
 {
 
+/// Enumeration of SQLite error codes. See the SQLite documentation for an
+/// explanation of each
 enum class sqlite_errc
 {
     abort = 4,
@@ -102,6 +104,7 @@ enum class sqlite_errc
     warning_autoindex = 284,
 };
 
+/// Obtain an instance of the SQLite error category.
 extern const asio_error_category& sqlite_category();
 
 inline error_code make_error_code(sqlite_errc e)
@@ -180,7 +183,7 @@ public:
         execute(ec);
         detail::throw_if_error(ec, "Failed to execute prepared statement");
     }
-    void execute(error_code&);
+    void execute(error_code& ec);
 
     void bind(int index, const value& value);
     void bind(const std::string& name, const value& value);

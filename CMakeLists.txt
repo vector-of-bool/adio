@@ -73,6 +73,22 @@ else()
         )
 endif()
 
+find_program(DOXYGEN_EXECUTABLE doxygen DOC "Path to Doxygen, for generating documentation")
+set(doxy_js ${CMAKE_CURRENT_LIST_DIR}/docs/doxy-boot.js)
+set(doxy_css ${CMAKE_CURRENT_LIST_DIR}/docs/customdoxygen.css)
+if(DOXYGEN_EXECUTABLE AND EXISTS "${doxy_js}")
+    configure_file(Doxyfile.in Doxyfile @ONLY)
+    file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/docs)
+    add_custom_target(docs
+        COMMAND "${DOXYGEN_EXECUTABLE}" "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile"
+        #COMMAND "${CMAKE_COMMAND}" -E copy "${doxy_css}" "${CMAKE_CURRENT_BINARY_DIR}/docs/html"
+        COMMAND "${CMAKE_COMMAND}" -E copy "${doxy_js}" "${CMAKE_CURRENT_BINARY_DIR}/docs/html"
+        COMMENT "Generating documentation"
+        WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/docs"
+        USES_TERMINAL
+        )
+endif()
+
 set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
 set(CPACK_OUTPUT_FILE_PREFIX ${CMAKE_CURRENT_BINARY_DIR}/packages)
 include(CPack)

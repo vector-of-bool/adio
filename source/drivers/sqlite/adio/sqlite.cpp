@@ -249,24 +249,24 @@ row sqlite_statement::current_row() const
     return row{std::move(values)};
 }
 
-void sqlite_statement::bind(int index, const value& val)
+void sqlite_statement::bind(int index, const value& value)
 {
     const auto pst = _private->st;
     int rc = SQLITE_OK;
-    switch (val.get_type())
+    switch (value.get_type())
     {
     case type::null_t:
         rc = ::sqlite3_bind_null(pst, index);
         break;
     case type::integer:
-        rc = ::sqlite3_bind_int64(pst, index, val.get<value::integer>());
+        rc = ::sqlite3_bind_int64(pst, index, value.get<value::integer>());
         break;
     case type::real:
-        rc = ::sqlite3_bind_double(pst, index, val.get<value::real>());
+        rc = ::sqlite3_bind_double(pst, index, value.get<value::real>());
         break;
     case type::text:
     {
-        const auto& str = val.get<value::text>();
+        const auto& str = value.get<value::text>();
         rc = ::sqlite3_bind_text(pst,
                                  index,
                                  str.data(),
@@ -276,7 +276,7 @@ void sqlite_statement::bind(int index, const value& val)
     }
     case type::blob:
     {
-        const auto& bytes = val.get<value::blob>();
+        const auto& bytes = value.get<value::blob>();
         rc = ::sqlite3_bind_blob(pst,
                                  index,
                                  bytes.data(),
@@ -287,7 +287,7 @@ void sqlite_statement::bind(int index, const value& val)
     case type::datetime:
     {
         const value::integer time
-            = val.get<value::datetime>().time_since_epoch().count();
+            = value.get<value::datetime>().time_since_epoch().count();
         rc = ::sqlite3_bind_int64(pst, index, time);
         break;
     }
@@ -312,11 +312,11 @@ void sqlite_statement::bind(int index, const value& val)
     }
 }
 
-void sqlite_statement::bind(const std::string& key, const value& val)
+void sqlite_statement::bind(const std::string& name, const value& value)
 {
     auto nparam = ::sqlite3_bind_parameter_count(_private->st);
     assert(nparam > 0);
-    const auto index = ::sqlite3_bind_parameter_index(_private->st, key.data());
-    if (index == 0) throw std::domain_error{ "No such parameter: " + key };
-    bind(index, val);
+    const auto index = ::sqlite3_bind_parameter_index(_private->st, name.data());
+    if (index == 0) throw std::domain_error{ "No such parameter: " + name };
+    bind(index, value);
 }

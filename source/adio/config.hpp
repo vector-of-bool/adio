@@ -1,6 +1,8 @@
 #ifndef ADIO_CONFIG_HPP_INCLUDED
 #define ADIO_CONFIG_HPP_INCLUDED
 
+#include <adio/docs.hpp>
+
 // clang-format off
 // Adio is built with either using boost or vanilla by default, use can
 // override:
@@ -43,22 +45,27 @@ namespace adio
 
 namespace asio = asio;
 
-using error_code = std::error_code;
-using error_condition = std::error_condition;
-using sys_errc = std::errc;
-using system_error = std::system_error;
-using asio_error_category = std::error_category;
+using error_code = ADIO_DOC_UNSPEC(std::error_code);
+using error_condition = ADIO_DOC_UNSPEC(std::error_condition);
+using sys_errc = ADIO_DOC_UNSPEC(std::errc);
+using system_error = ADIO_DOC_UNSPEC(std::system_error);
+using asio_error_category = ADIO_DOC_UNSPEC(std::error_category);
 using std::make_error_code;
 using std::make_error_condition;
 
 #else  // Use Boost.Asio:
 
-namespace asio = boost::asio;
-using error_code = boost::system::error_code;
-using error_condition = boost::system::error_condition;
-using sys_errc = boost::system::errc::errc_t;
-using system_error = boost::system::system_error;
-using asio_error_category = boost::system::error_category;
+namespace asio = ADIO_DOC_UNSPEC(boost::asio);
+/// Either ``std::error_code`` or ``boost::system::error_code``
+using error_code = ADIO_DOC_UNSPEC(boost::system::error_code);
+/// Either ``std::error_condition`` or ``boost::system::error_condition``
+using error_condition = ADIO_DOC_UNSPEC(boost::system::error_condition);
+/// Either ``std::errc`` or ``boost::system::errc::errc_t``
+using sys_errc = ADIO_DOC_UNSPEC(boost::system::errc::errc_t);
+/// Either ``std::system_error`` or ``boost::system::system_error``
+using system_error = ADIO_DOC_UNSPEC(boost::system::system_error);
+/// Either ``std::error_category`` or ``boost::system::error_category``
+using asio_error_category = ADIO_DOC_UNSPEC(boost::system::error_category);
 using boost::system::errc::make_error_code;
 using boost::system::errc::make_error_condition;
 

@@ -57,3 +57,78 @@ TEST_CASE("String conversion")
     CHECK(v.get<std::basic_string<unsigned char>>()
           == std::basic_string<unsigned char>(std::begin(arr), std::end(arr)-1));
 }
+
+struct MyString
+{
+    std::string str;
+};
+
+struct NullableString
+{
+    MyString data;
+    bool null;
+};
+
+namespace adio
+{
+
+template<> struct value_adaptor<MyString>
+{
+    using base_type = std::string;
+    enum { nullable = false };
+    static MyString convert(const base_type& t)
+    {
+        return MyString{t};
+    }
+
+    static base_type convert(const MyString& t)
+    {
+        return t.str;
+    }
+};
+
+template<> struct value_adaptor<NullableString>
+{
+    enum { nullable = true };
+    using base_type = MyString;
+    static NullableString null() { return NullableString{"", true}; }
+    static bool is_null(const NullableString& ns) { return ns.null; }
+    static NullableString convert(const base_type& t) { return NullableString{t, false}; }
+    static base_type convert(const NullableString& ns) { return ns.data; }
+};
+
+} /* adio */
+
+
+TEST_CASE("Custom types")
+{
+    value v{ "Cats" };
+    CHECK(v.get<MyString>().str == "Cats");
+    value other{ MyString{ "Dogs" } };
+    CHECK(other == "Dogs");
+    CHECK(other != 12);
+}
+
+TEST_CASE("Custom nullable types")
+{
+    {
+        value v{"Dogs"};
+        CHECK_FALSE(v.get<NullableString>().null);
+        CHECK(v.get<NullableString>().data.str == "Dogs");
+    }
+
+    {
+        value v;
+        CHECK(v.get<NullableString>().null);
+    }
+
+    {
+        NullableString str{ "Cats", false };
+        CHECK(value{str} == "Cats");
+    }
+
+    {
+        NullableString nullstr{ "", true };
+        CHECK(value{nullstr} == adio::null);
+    }
+}

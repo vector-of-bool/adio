@@ -1,4 +1,4 @@
-foreach(test connection empty sqlite value)
+foreach(test connection empty sqlite value row)
     add_executable(test.${test} ${test}.cpp)
     catch_add_tests(adio test.${test})
     target_link_libraries(test.${test} PUBLIC adio boost::coroutine boost::thread)

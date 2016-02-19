@@ -16,6 +16,7 @@ namespace adio
 
 using boost::variant;
 
+/// Represents the type of some database value
 enum class type
 {
     null_t,
@@ -26,12 +27,15 @@ enum class type
     datetime,
 };
 
+/// Special class used to represent NULL database values. @see adio::null
 class null_t final : public boost::operators<null_t> {
     bool operator==(null_t) const { return true; }
     bool operator<(null_t) const { return false; }
 };
+/// An instance of ``null_t``
 extern null_t null;
 
+/// Exception throw when accessing a ``value`` object using the incorrect type.
 class invalid_access : public std::runtime_error
 {
 public:
@@ -44,6 +48,7 @@ public:
 using boost::get;
 using std::get;
 
+/// Type used to adapt to and from ``value`` (See @ref custom_adaptors "Custom adaptors")
 template <typename T> struct value_adaptor;
 template <typename T> struct is_basic_type;
 
@@ -106,24 +111,47 @@ private:
         return adaptor::convert(value);
     }
 
+    template <typename T,
+              typename Adaptor = value_adaptor<typename std::decay<T>::type>>
+    static value _from_maybe_nullable(T&& other, std::true_type)
+    {
+        return Adaptor::is_null(other)
+            ? value{null}
+            : value{Adaptor::convert(std::forward<T>(other))};
+    }
+
+    template <typename T,
+              typename Adaptor = value_adaptor<typename std::decay<T>::type>>
+    static value _from_maybe_nullable(T&& other, std::false_type)
+    {
+        return value{Adaptor::convert(std::forward<T>(other))};
+    }
+
 public:
     value(null_t = null)
         : _data{null}
     {
     }
-    template <typename T,
-              typename = typename std::enable_if<std::is_integral<
-                  typename std::decay<T>::type>::value>::type>
-    value(T i)
-        : _data{integer{i}}
+    value(integer i)
+        : _data{i}
     {
     }
-    template <typename T,
-              typename = void,
-              typename = typename std::enable_if<std::is_floating_point<
-                  typename std::decay<T>::type>::value>::type>
-    value(T r)
-        : _data{real{r}}
+    value(real r)
+        : _data{r}
+    {
+    }
+    template <ADIO_DOCS_LIE(typename Other)(
+        typename Other,
+        typename Decayed = typename std::decay<Other>::type,
+        typename
+        = typename std::enable_if<has_value_adaptor<Decayed>::value
+                                  && !is_basic_type<Decayed>::value>::type,
+        typename Adaptor = value_adaptor<Decayed>)>
+    value(Other&& other)
+        : value(
+              _from_maybe_nullable(std::forward<Other>(other),
+                                   std::integral_constant<bool,
+                                                          Adaptor::nullable>{}))
     {
     }
     value(text t)
@@ -207,8 +235,8 @@ public:
 
     template <typename T> explicit operator T() const { return get<T>(); }
 
-    inline bool operator<(const value&) const;
-    inline bool operator==(const value&) const;
+    inline bool operator<(const value& other) const;
+    inline bool operator==(const value& other) const;
 };
 
 template <typename T> struct is_basic_type : std::false_type
@@ -316,6 +344,7 @@ template <typename Int> struct integer_adaptor
     };
     using base_type = value::integer;
     static Int convert(base_type v) { return static_cast<Int>(v); }
+    static base_type convert(Int v) { return static_cast<base_type>(v); }
 };
 
 } /* detail */
@@ -330,7 +359,6 @@ DECL_INT_ADAPTOR(std::int16_t);
 DECL_INT_ADAPTOR(std::uint16_t);
 DECL_INT_ADAPTOR(std::int32_t);
 DECL_INT_ADAPTOR(std::uint32_t);
-DECL_INT_ADAPTOR(std::int64_t);
 DECL_INT_ADAPTOR(std::uint64_t);
 DECL_INT_ADAPTOR(bool);
 #undef DECL_INT_ADAPTOR
