@@ -142,17 +142,21 @@ std::vector<sqlite::statement> sqlite::_multi_prepare(const string& source,
 {
     if (!_private->db)
     {
-        e =make_error_code(adio::sys_errc::not_connected);
+        e = make_error_code(adio::sys_errc::not_connected);
         return {};
     }
-    auto cur_ptr =  source.data();
+    auto cur_ptr = source.data();
     auto remaining = source.size();
     std::vector<sqlite::statement> ret;
     while (cur_ptr)
     {
         auto next_ptr = cur_ptr;
         auto p = detail::make_unique<detail::sqlite_statement_private>();
-        auto err = ::sqlite3_prepare_v2(_private->db, cur_ptr, remaining, &p->st, &next_ptr);
+        auto err = ::sqlite3_prepare_v2(_private->db,
+                                        cur_ptr,
+                                        remaining,
+                                        &p->st,
+                                        &next_ptr);
         if (err != SQLITE_OK)
         {
             e = make_error_code(static_cast<sqlite_errc>(err));
@@ -211,7 +215,7 @@ row sqlite_statement::current_row() const
     std::vector<adio::value> values;
     values.reserve(num_columns);
 
-    for (auto i = 0u; i < num_columns; ++i)
+    for (auto i = 0; i < num_columns; ++i)
     {
         const auto sql_type = ::sqlite3_column_type(pst, i);
 
@@ -297,20 +301,21 @@ void sqlite_statement::bind(int index, const value& value)
         assert(0);
         std::terminate();
     }
-    switch(rc)
+    switch (rc)
     {
-        case SQLITE_NOMEM:
-            throw std::bad_alloc{};
-        case SQLITE_MISUSE:
-            std::terminate();
-        case SQLITE_RANGE:
-            throw std::out_of_range{ "Parameter index out of range" };
-        case SQLITE_TOOBIG:
-            throw std::domain_error{ "Parameter is too big" };
-        case SQLITE_OK:
-            return;
-        default:
-            throw system_error(make_error_code(static_cast<sqlite_errc>(rc)), "Failed to bind parameter");
+    case SQLITE_NOMEM:
+        throw std::bad_alloc{};
+    case SQLITE_MISUSE:
+        std::terminate();
+    case SQLITE_RANGE:
+        throw std::out_of_range{"Parameter index out of range"};
+    case SQLITE_TOOBIG:
+        throw std::domain_error{"Parameter is too big"};
+    case SQLITE_OK:
+        return;
+    default:
+        throw system_error(make_error_code(static_cast<sqlite_errc>(rc)),
+                           "Failed to bind parameter");
     }
 }
 
@@ -318,7 +323,8 @@ void sqlite_statement::bind(const std::string& name, const value& value)
 {
     auto nparam = ::sqlite3_bind_parameter_count(_private->st);
     assert(nparam > 0);
-    const auto index = ::sqlite3_bind_parameter_index(_private->st, name.data());
-    if (index == 0) throw std::domain_error{ "No such parameter: " + name };
+    const auto index
+        = ::sqlite3_bind_parameter_index(_private->st, name.data());
+    if (index == 0) throw std::domain_error{"No such parameter: " + name};
     bind(index, value);
 }

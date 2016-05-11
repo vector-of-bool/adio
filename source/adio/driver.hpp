@@ -97,6 +97,8 @@ public:                                                                        \
                                        impl,                                   \
                                        std::forward<Args>(args)...))           \
     {                                                                          \
+        /* Defer to the invoke helpers. This helps us automatically get the    \
+         * handler from the tail of the argument list */                       \
         return _async_##name(detail::pop_back<Args...>{},                      \
                              impl,                                             \
                              std::forward<Args>(args)...);                     \

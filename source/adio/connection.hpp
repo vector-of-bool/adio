@@ -8,7 +8,7 @@
 namespace adio
 {
 
-/** Represents a database connection, through which a user make execute queries.
+/** Represents a database connection, through which a user may execute queries.
  *
  * @param Driver The backend of the database connection, such as SQLite,
  * PostgreSQL, etc.
@@ -21,7 +21,8 @@ namespace adio
  * methods corresponding to these operations. The return type and argument types
  * for each is not specified within the ``basic_connection`` class template, but
  * is defined by the backend ``Driver`` type. To see the precise semantics of
- * these methods, refer to the driver classes themselves. For example, see ``adio::sqlite``.
+ * these methods, refer to the driver classes themselves. For example, see
+ * ``adio::sqlite``.
  */
 template <typename Driver>
 class basic_connection : public asio::basic_io_object<typename Driver::service>

@@ -1,8 +1,8 @@
 #ifndef ADIO_EMPTY_DRIVER_HPP_INCLUDED
 #define ADIO_EMPTY_DRIVER_HPP_INCLUDED
 
-#include <adio/driver.hpp>
 #include <adio/connection_fwd.hpp>
+#include <adio/driver.hpp>
 
 #include <iostream>
 
@@ -62,7 +62,8 @@ public:
     void close() {}
 };
 
-class empty_service : public detail::base_driver_service<empty_service, empty_driver>
+class empty_service
+    : public detail::base_driver_service<empty_service, empty_driver>
 {
 public:
     using base_driver_service<empty_service, empty_driver>::base_driver_service;

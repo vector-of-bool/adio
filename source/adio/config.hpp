@@ -81,10 +81,21 @@ using std::string;
 #define ADIO_DECLARE_ERRC_ENUM(type)                                           \
     namespace std                                                              \
     {                                                                          \
-    template <> struct is_error_code_enum<type> : public std::true_type        \
+    template <> struct is_error_code_enum<type>                                \
     {                                                                          \
+        enum                                                                   \
+        {                                                                      \
+            value = true                                                       \
+        };                                                                     \
     };                                                                         \
-    } /* stc */                                                                \
+    template <> struct is_error_condition_enum<type>                           \
+    {                                                                          \
+        enum                                                                   \
+        {                                                                      \
+            value = true                                                       \
+        };                                                                     \
+    };                                                                         \
+    } /* std */                                                                \
     static_assert(true, "")
 #else
 #define ADIO_DECLARE_ERRC_ENUM(type)                                           \
@@ -101,7 +112,8 @@ using std::string;
         };                                                                     \
     };                                                                         \
     } /* system */                                                             \
-    } /* boost */ static_assert(true, "")
-#endif // ADIO_DETAIL_VANILLA_ASIO
+    } /* boost */                                                              \
+    static_assert(true, "")
+#endif  // ADIO_DETAIL_VANILLA_ASIO
 
 #endif  // ADIO_CONFIG_HPP_INCLUDED

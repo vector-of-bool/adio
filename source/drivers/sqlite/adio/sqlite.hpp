@@ -114,7 +114,7 @@ inline error_code make_error_code(sqlite_errc e)
 
 inline error_condition make_error_condition(sqlite_errc e)
 {
-    return { static_cast<int>(e), sqlite_category() };
+    return {static_cast<int>(e), sqlite_category()};
 }
 
 namespace detail
@@ -147,8 +147,7 @@ public:
 
     row current_row() const;
 
-    class iterator
-        : public std::iterator<std::input_iterator_tag, row>
+    class iterator : public std::iterator<std::input_iterator_tag, row>
     {
         std::reference_wrapper<sqlite_statement> _st;
         bool _is_end = false;
@@ -170,7 +169,7 @@ public:
 
         bool operator!=(const iterator& other)
         {
-             return other._is_end != _is_end;
+            return other._is_end != _is_end;
         }
 
         row operator*() const { return _st.get().current_row(); }
@@ -250,19 +249,23 @@ public:
     {
         error_code ec;
         auto st = prepare(str, ec);
-        detail::throw_if_error(ec, "Failed to prepare statement: \"" + str + "\"");
+        detail::throw_if_error(ec,
+                               "Failed to prepare statement: \"" + str + "\"");
         return st;
     }
     statement prepare(const string& query, error_code& ec)
     {
         return statement{_prepare(query, ec)};
     }
-    using prepare_multiple_handler_signature = void(std::vector<statement>, error_code);
+    using prepare_multiple_handler_signature
+        = void(std::vector<statement>, error_code);
     std::vector<statement> prepare_multiple(const string& source)
     {
         error_code ec;
         auto sts = prepare_multiple(source, ec);
-        detail::throw_if_error(ec, "Failed to prepare SQL source: \"" + source + "\"");
+        detail::throw_if_error(ec,
+                               "Failed to prepare SQL source: \"" + source
+                                   + "\"");
         return sts;
     }
 
@@ -294,9 +297,9 @@ public:
     void execute(statement&& st) { execute(st); }
     void execute(statement& st)
     {
-         error_code ec;
-         execute(st, ec);
-         detail::throw_if_error(ec, "Failed to execute prepared statement");
+        error_code ec;
+        execute(st, ec);
+        detail::throw_if_error(ec, "Failed to execute prepared statement");
     }
     void execute(statement&& st, error_code& ec) { execute(st, ec); }
     void execute(statement& st, error_code& ec) { st.execute(ec); }
@@ -324,10 +327,10 @@ public:
     }
     void execute(const string& query, error_code& ec)
     {
-         ec = {};
-         auto st = prepare(query, ec);
-         if (ec) return;
-         execute(st, ec);
+        ec = {};
+        auto st = prepare(query, ec);
+        if (ec) return;
+        execute(st, ec);
     }
     template <typename Handler>
     void async_execute(const string& query, Handler&& handler)
@@ -338,7 +341,11 @@ public:
             this,
             handler = std::forward<Handler>(handler)
         ](statement st, error_code ec) {
-            if (ec) _parent_ios.get().post(std::bind(handler, ec));
+            if (ec)
+            {
+                _parent_ios.get().post(std::bind(handler, ec));
+                return;
+            }
             async_execute([
                 this_pin,
                 work_pin,
@@ -384,13 +391,11 @@ public:
 namespace detail
 {
 
-class sqlite_service
-    : public base_driver_service<sqlite_service, sqlite>
+class sqlite_service : public base_driver_service<sqlite_service, sqlite>
 {
 public:
     using self_type = sqlite_service;
-    using super_type
-        = base_driver_service<sqlite_service, sqlite>;
+    using super_type = base_driver_service<sqlite_service, sqlite>;
 
 private:
     friend class adio::sqlite;
