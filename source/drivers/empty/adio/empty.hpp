@@ -30,6 +30,7 @@ public:
 
     using execute_handler_signature = void();
     using open_handler_signature = void();
+    using step_handler_signatuve = void();
 
     void open(const std::string& path)
     {
@@ -54,6 +55,8 @@ public:
         std::cerr << "Executing async query: " << str << '\n';
         _post(std::forward<Handler>(h));
     }
+
+    int step(std::string) { return 12; }
 
     int prepare(const std::string& str) const { return 42; }
     void close() {}

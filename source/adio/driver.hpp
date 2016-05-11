@@ -106,6 +106,7 @@ public:                                                                        \
     ADIO_SERVICE_DECL_FN(open);
     ADIO_SERVICE_DECL_FN(prepare);
     ADIO_SERVICE_DECL_FN(execute);
+    ADIO_SERVICE_DECL_FN(step);
     ADIO_SERVICE_DECL_FN(close);
 
 private:

@@ -1,11 +1,11 @@
 #ifndef ADIO_SQLITE_DRIVER_HPP_INCLUDED
 #define ADIO_SQLITE_DRIVER_HPP_INCLUDED
 
+#include <adio/connection_fwd.hpp>
 #include <adio/driver.hpp>
 #include <adio/error.hpp>
+#include <adio/sql/row.hpp>
 #include <adio/utils.hpp>
-#include <adio/connection_fwd.hpp>
-#include <adio/row.hpp>
 
 #include <future>
 #include <memory>
@@ -132,6 +132,8 @@ class sqlite_statement
 
     bool _advance();
 
+    bool _done = false;
+
 public:
     sqlite_statement();
     explicit sqlite_statement(std::shared_ptr<sqlite_statement_private>&& p);
@@ -187,6 +189,8 @@ public:
 
     void bind(int index, const value& value);
     void bind(const std::string& name, const value& value);
+
+    bool done() const { return _done; }
 };
 
 class sqlite_service;
@@ -343,6 +347,36 @@ public:
             ](error_code ec) {
                 _parent_ios.get().post(std::bind(handler, ec));
             });
+        });
+    }
+
+    using step_handler_signature = void(row, error_code);
+    row step(statement& st)
+    {
+        error_code ec;
+        const auto result = step(st, ec);
+        detail::throw_if_error(ec, "Failed to step query");
+        return result;
+    }
+    row step(statement& st, error_code& ec)
+    {
+        ec = {};
+        st.execute(ec);
+        if (ec || st.done()) return row({});
+        return st.current_row();
+    }
+    template <typename Handler> void async_step(statement& st, Handler&& h)
+    {
+        _push_task([
+            this_pin = shared_from_this(),
+            work_pin = detail::make_work(_parent_ios),
+            this,
+            st_ref = std::ref(st),
+            handler = std::forward<Handler>(h)
+        ]() mutable {
+            error_code ec;
+            step(st_ref, ec);
+            _parent_ios.get().post(std::bind(handler, ec));
         });
     }
 };

@@ -1,4 +1,4 @@
-#include <adio/row.hpp>
+#include <adio/sql/row.hpp>
 
 #include <catch/catch.hpp>
 

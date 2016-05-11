@@ -9,7 +9,7 @@
 #include <boost/operators.hpp>
 #include <boost/variant.hpp>
 
-#include "traits.hpp"
+#include <adio/traits.hpp>
 
 namespace adio
 {

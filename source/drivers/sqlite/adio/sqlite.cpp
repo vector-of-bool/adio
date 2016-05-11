@@ -2,7 +2,7 @@
 
 #include <sqlite3.h>
 
-#include <adio/value.hpp>
+#include <adio/sql/value.hpp>
 
 using namespace adio;
 using detail::sqlite_statement;
@@ -69,6 +69,7 @@ bool sqlite_statement::_advance()
     switch (rc)
     {
     case SQLITE_DONE:
+        _done = true;
         return true;
     case SQLITE_ROW:
         return false;
@@ -88,6 +89,7 @@ void sqlite_statement::execute(error_code& ec)
         switch (rc)
         {
         case SQLITE_DONE:
+            _done = true;
             return;
         case SQLITE_ROW:
             ec = make_error_code(static_cast<sqlite_errc>(SQLITE_OK));

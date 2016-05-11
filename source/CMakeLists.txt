@@ -13,9 +13,9 @@ add_library(adio
     adio/connection.hpp
     adio/connection.cpp
     adio/driver.hpp
-    adio/value.hpp
-    adio/value.cpp
-    adio/row.hpp
+    adio/sql/value.hpp
+    adio/sql/value.cpp
+    adio/sql/row.hpp
     )
 
 target_link_libraries(adio PUBLIC boost::variant)
@@ -84,6 +84,9 @@ function(adio_backend name)
             FILES_MATCHING
             PATTERN *.hpp
             )
+    endif()
+    if(NOT MSVC)
+        target_compile_options(adio-${name} PRIVATE -Wall -Wextra)
     endif()
 endfunction()
 

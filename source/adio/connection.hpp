@@ -70,6 +70,7 @@ public:
     ADIO_CON_DECL_FN(open);
     ADIO_CON_DECL_FN(prepare);
     ADIO_CON_DECL_FN(execute);
+    ADIO_CON_DECL_FN(step);
     ADIO_CON_DECL_FN(close);
 #undef ADIO_CON_DECL_FN
 };

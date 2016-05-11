@@ -189,6 +189,17 @@ TEST_CASE("Iterate over data")
 }
 
 
+TEST_CASE("Step over data")
+{
+    DECL_OPEN;
+    auto st = con.prepare("SELECT * from myTable");
+    for (auto row = con.step(st); !st.done(); row = con.step(st))
+    {
+        CHECK(row.size());
+    }
+}
+
+
 TEST_CASE("Bind indexed parameters")
 {
     DECL_OPEN;
