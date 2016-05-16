@@ -2,7 +2,6 @@ include(CMakeParseArguments)
 
 set(PEW_HEADER_DIRECTORIES adio)
 add_library(adio
-    dummy.cpp
     adio/config.hpp
     adio/docs.hpp
     adio/utils.hpp
