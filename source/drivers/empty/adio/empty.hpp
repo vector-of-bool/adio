@@ -58,7 +58,7 @@ public:
 
     int step(std::string) { return 12; }
 
-    int prepare(const std::string& str) const { return 42; }
+    int prepare(const std::string&) const { return 42; }
     void close() {}
 };
 
