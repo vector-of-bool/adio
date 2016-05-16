@@ -6,6 +6,9 @@ compiler:
 sudo: required
 dist: trusty
 
+cache:
+    - apt
+
 env:
     - BT=Release
     - BT=Debug
