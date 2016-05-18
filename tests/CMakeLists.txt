@@ -1,4 +1,11 @@
-foreach(test connection empty sqlite value row)
+
+foreach(backend empty sqlite postgresql)
+    if(TARGET adio::${backend})
+        list(APPEND backend_tests ${backend})
+    endif()
+endforeach()
+
+foreach(test connection value row ${backend_tests})
     add_executable(test.${test} ${test}.cpp)
     catch_add_tests(adio test.${test})
     target_link_libraries(test.${test} PUBLIC adio boost::coroutine boost::thread)
