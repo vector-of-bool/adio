@@ -11,7 +11,7 @@ add_library(adio
     adio/connection_fwd.hpp
     adio/connection.hpp
     adio/connection.cpp
-    adio/driver.hpp
+    adio/service.hpp
     adio/sql/value.hpp
     adio/sql/value.cpp
     adio/sql/row.hpp
@@ -61,11 +61,12 @@ function(adio_backend name)
         ARGS
         ""
         ""
-        "SOURCES;LINK_LIBRARIES"
+        "SOURCES;LINK_LIBRARIES;INCLUDE_DIRECTORIES"
         ${ARGN})
     set(PEW_HEADER_DIRECTORIES adio)
     add_library(adio-${name} ${ARGS_SOURCES})
     target_link_libraries(adio-${name} PUBLIC adio::adio ${ARGS_LINK_LIBRARIES})
+    target_include_directories(adio-${name} PUBLIC ${ARGS_INCLUDE_DIRECTORIES})
     set_property(TARGET adio-${name} PROPERTY EXPORT_NAME adio::${driver})
     add_library(adio::${name} ALIAS adio-${name})
     target_include_directories(adio-${name} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)

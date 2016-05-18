@@ -1,5 +1,5 @@
-#ifndef ADIO_DATABASE_DRIVER_HPP_INCLUDED
-#define ADIO_DATABASE_DRIVER_HPP_INCLUDED
+#ifndef ADIO_DB_SERVICE_BASE_HPP_INCLUDED
+#define ADIO_DB_SERVICE_BASE_HPP_INCLUDED
 
 #include "config.hpp"
 #include "traits.hpp"
@@ -13,28 +13,25 @@ namespace adio
 namespace detail
 {
 
-template <typename Derived,
-          typename Implementation = typename Derived::connection_type>
-class base_driver_service : public asio::io_service::service
+template <typename Derived, typename Driver>
+class db_service_base : public asio::io_service::service
 {
 public:
     static asio::io_service::id id;
 
-    using statement = typename Implementation::statement;
-
-    using self_type = base_driver_service;
+    using self_type = db_service_base;
     using super_type = asio::io_service::service;
 
-    using implementation_type = std::shared_ptr<Implementation>;
+    using implementation_type = std::shared_ptr<Driver>;
 
-    base_driver_service(asio::io_service& ios)
+    db_service_base(asio::io_service& ios)
         : super_type(ios)
     {
     }
 
     void construct(implementation_type& impl)
     {
-        impl.reset(new Implementation(static_cast<Derived&>(*this)));
+        impl.reset(new Driver(static_cast<Derived&>(*this)));
     }
     void destroy(implementation_type& impl) { impl.reset(); }
 
@@ -56,7 +53,7 @@ private:                                                                       \
         {                                                                      \
             static_assert(                                                     \
                 adio::handler_matches<Handler,                                 \
-                                      typename Implementation::                \
+                                      typename Driver::                        \
                                           name##_handler_signature>::value,    \
                 "Invalid async handler passed to async_" #name                 \
                 " for this database driver");                                  \
@@ -67,11 +64,11 @@ private:                                                                       \
                         Args&&... args,                                        \
                         Handler&& handler)                                     \
             -> decltype(std::declval<handler_helper<                           \
-                            typename Implementation::name##_handler_signature, \
+                            typename Driver::name##_handler_signature,         \
                             handler_decay<Handler>>&>()                        \
                             .result.get())                                     \
         {                                                                      \
-            handler_helper<typename Implementation::name##_handler_signature,  \
+            handler_helper<typename Driver::name##_handler_signature,          \
                            handler_decay<Handler>>                             \
                 init{std::forward<Handler>(handler)};                          \
             _invoke(impl, std::forward<Args>(args)..., init.handler);          \
@@ -115,11 +112,11 @@ private:
     void shutdown_service() override{};
 };
 
-template <typename Derived, typename Implementation>
-io_service::id base_driver_service<Derived, Implementation>::id;
+template <typename Derived, typename Driver>
+io_service::id db_service_base<Derived, Driver>::id;
 
 } /* detail */
 
 } /* adio */
 
-#endif  // ADIO_DATABASE_DRIVER_HPP_INCLUDED
+#endif  // ADIO_DB_SERVICE_BASE_HPP_INCLUDED

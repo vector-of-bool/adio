@@ -2,7 +2,7 @@
 #define ADIO_EMPTY_DRIVER_HPP_INCLUDED
 
 #include <adio/connection_fwd.hpp>
-#include <adio/driver.hpp>
+#include <adio/service.hpp>
 
 #include <iostream>
 
@@ -63,10 +63,10 @@ public:
 };
 
 class empty_service
-    : public detail::base_driver_service<empty_service, empty_driver>
+    : public detail::db_service_base<empty_service, empty_driver>
 {
 public:
-    using base_driver_service<empty_service, empty_driver>::base_driver_service;
+    using db_service_base<empty_service, empty_driver>::db_service_base;
 };
 
 empty_driver::empty_driver(empty_service& service)

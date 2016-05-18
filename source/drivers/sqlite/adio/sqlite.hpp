@@ -2,7 +2,7 @@
 #define ADIO_SQLITE_DRIVER_HPP_INCLUDED
 
 #include <adio/connection_fwd.hpp>
-#include <adio/driver.hpp>
+#include <adio/service.hpp>
 #include <adio/error.hpp>
 #include <adio/sql/row.hpp>
 #include <adio/utils.hpp>
@@ -391,11 +391,11 @@ public:
 namespace detail
 {
 
-class sqlite_service : public base_driver_service<sqlite_service, sqlite>
+class sqlite_service : public db_service_base<sqlite_service, sqlite>
 {
 public:
     using self_type = sqlite_service;
-    using super_type = base_driver_service<sqlite_service, sqlite>;
+    using super_type = db_service_base<sqlite_service, sqlite>;
 
 private:
     friend class adio::sqlite;
