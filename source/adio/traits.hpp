@@ -111,8 +111,9 @@ template <typename... Ts> struct tag
 
 template <class T, std::size_t I> struct type_index_pair
 {
-    friend T my_declval(type_index_pair,
-                        std::integral_constant<std::size_t, I>){}
+    friend T my_declval(type_index_pair, std::integral_constant<std::size_t, I>)
+    {
+    }
 };
 
 template <class, class> struct pop_back_helper;
@@ -146,7 +147,10 @@ struct handler_matches : std::false_type
 };
 
 template <typename Handler, typename Ret, typename... Args>
-struct handler_matches<Handler, Ret(Args...), void_t<decltype(std::declval<Handler&>()(std::declval<Args&&>()...))>>
+struct handler_matches<Handler,
+                       Ret(Args...),
+                       void_t<decltype(std::declval<Handler&>()(
+                           std::declval<Args&&>()...))>>
     : std::integral_constant<bool,
                              std::is_same<decltype(std::declval<Handler&>()(
                                               std::declval<Args&&>()...)),
