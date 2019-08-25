@@ -10,9 +10,9 @@
 
 ADIO_NAMESPACE_BEGIN
 
-using std::error_condition;
 using std::error_category;
 using std::error_code;
+using std::error_condition;
 using std::system_error;
 using std::errc::make_error_code;
 using std::errc::make_error_condition;

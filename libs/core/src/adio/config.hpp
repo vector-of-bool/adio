@@ -5,7 +5,7 @@
 #define ADIO_BACKEND_Asio 2
 #define ADIO_BACKEND_NetworkTS 3
 
-#define ADIO_PASTE_1(a, b) a ## b
+#define ADIO_PASTE_1(a, b) a##b
 #define ADIO_PASTE(a, b) ADIO_PASTE_1(a, b)
 
 #define ADIO_STR(a) #a

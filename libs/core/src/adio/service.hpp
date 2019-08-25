@@ -24,7 +24,7 @@ public:
     explicit basic_database_service(execution_context& ctx)
         : service(ctx) {}
 
-    driver_type& get_driver() noexcept { return _driver;  }
+    driver_type&       get_driver() noexcept { return _driver; }
     const driver_type& get_driver() const noexcept { return _driver; }
 };
 

@@ -52,8 +52,7 @@ class bound_handler {
     }
 
     template <class ArgsTuple, std::size_t... S>
-    static void
-    invoke(Handler& h, ArgsTuple& args, std::tuple<>&&, std::index_sequence<S...>) {
+    static void invoke(Handler& h, ArgsTuple& args, std::tuple<>&&, std::index_sequence<S...>) {
         h(std::get<S>(std::move(args))...);
     }
 

@@ -13,18 +13,24 @@ namespace sql {
 namespace detail {
 
 template <typename, typename = void>
-struct pick_result_type : type_is<void> {};
+struct pick_result_type {
+    using type = void;
+};
 
 template <typename Handler>
-struct pick_result_type<Handler, std::void_t<typename Handler::result_type>>
-    : type_is<typename Handler::result_type> {};
+struct pick_result_type<Handler, std::void_t<typename Handler::result_type>> {
+    using type = typename Handler::result_type;
+};
 
 template <typename, typename = void>
-struct pick_row_type : type_is<void> {};
+struct pick_row_type {
+    using type = void;
+};
 
 template <typename Handler>
-struct pick_row_type<Handler, std::void_t<typename Handler::row_type>>
-    : type_is<typename Handler::row_type> {};
+struct pick_row_type<Handler, std::void_t<typename Handler::row_type>> {
+    using type = typename Handler::row_type;
+};
 
 }  // namespace detail
 
@@ -50,7 +56,7 @@ struct row_handler_traits {
         static_assert(
             has_row_converter<row_type, Row>::value,
             "There is no row converter that works with the given row input and output types");
-        return row_converter<row_type>::convert(ADIO_FORWARD(row));
+        return row_converter<row_type>::convert(ADIO_FWD(row));
     }
 
     template <typename Arg>
@@ -58,7 +64,7 @@ struct row_handler_traits {
         if constexpr (std::is_same<result_type, void>::value) {
             return;
         } else {
-            return ADIO_FORWARD(a).result();
+            return ADIO_FWD(a).result();
         }
     }
 };
@@ -68,16 +74,16 @@ void dispatch_row(Handler&& h, Row&& r) {
     using Traits = row_handler_traits<std::decay_t<Handler>>;
     if constexpr (std::is_same<typename Traits::row_type, void>()
                   || std::is_convertible<Row, typename Traits::row_type>::value) {
-        h(ADIO_FORWARD(r));
+        h(ADIO_FWD(r));
     } else {
-        auto new_row = Traits::convert_row(ADIO_FORWARD(r));
+        auto new_row = Traits::convert_row(ADIO_FWD(r));
         h(std::move(new_row));
     }
 }
 
 template <typename Handler>
 decltype(auto) result(Handler&& h) {
-    return row_handler_traits<std::decay_t<Handler>>::result(ADIO_FORWARD(h));
+    return row_handler_traits<std::decay_t<Handler>>::result(ADIO_FWD(h));
 }
 
 template <typename Query, typename ResultHandler>
@@ -96,8 +102,8 @@ public:
 
     template <typename Q, typename H>
     program(Q&& q, H&& h)
-        : _query(ADIO_FORWARD(q))
-        , _handler(ADIO_FORWARD(h)) {}
+        : _query(ADIO_FWD(q))
+        , _handler(ADIO_FWD(h)) {}
 };
 
 // template <typename Query, typename ResultHandler>
@@ -123,7 +129,7 @@ public:
 
     template <typename What>
     void operator()(What&& w) {
-        *_iter++ = ADIO_FORWARD(w);
+        *_iter++ = ADIO_FWD(w);
     }
 };
 
@@ -139,7 +145,7 @@ public:
     void operator()(What&& w) {
         using std::end;
         auto end_iter = end(_container);
-        _container.insert(end_iter, ADIO_FORWARD(w));
+        _container.insert(end_iter, ADIO_FWD(w));
     }
 
     using row_type = std::decay_t<decltype(*std::declval<Container&>().begin())>;
@@ -157,7 +163,7 @@ public:
     template <typename What>
     void operator()(What&& w) {
         auto into = adio::sql::into_container(c);
-        into(ADIO_FORWARD(w));
+        into(ADIO_FWD(w));
     }
 
     using result_type = Container;
@@ -183,7 +189,7 @@ private:
 public:
     template <typename Row>
     static tuple_type convert(Row&& row) {
-        return _convert(ADIO_FORWARD(row), std::index_sequence_for<Types...>());
+        return _convert(ADIO_FWD(row), std::index_sequence_for<Types...>());
     }
 };
 
