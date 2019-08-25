@@ -27,36 +27,41 @@ inline void throw_if_error(const adio::error_code& e, std::string_view what) {
 template <typename...>
 struct tag {};
 
+template <typename... Ts>
+constexpr inline tag<Ts...> tag_v;
+
 /**
  * Invoke the given callable and always return a value, even if `void_return`
  */
-template <typename Callable>
-decltype(auto) regularize_invoke(Callable&&);
+template <typename Callable, typename... Args>
+decltype(auto) regularize_invoke(Callable&&, Args&&...);
 
 namespace detail {
 
+// Type to represent a void return value. Returned by regularize_invoke, and
+// converted back to void with `unregularize`
 struct void_return {};
 
 // Map void-returning functions to return `void_return`
-template <typename Callable>
-void_return regularize_invoke(Callable&& c, tag<void>) {
-    std::invoke(ADIO_FWD(c));
+template <typename Callable, typename... Args>
+void_return regularize_invoke(tag<void>, Callable&& c, Args&&... args) {
+    std::invoke(ADIO_FWD(c), ADIO_FWD(args)...);
     return void_return();
 }
 
 // Map non-void to its regular return type
-template <typename Callable, typename Ret>
-decltype(auto) regularize_invoke(Callable&& c, tag<Ret>) {
-    return std::invoke(ADIO_FWD(c));
+template <typename Ret, typename Callable, typename... Args>
+decltype(auto) regularize_invoke(tag<Ret>, Callable&& c, Args&&... args) {
+    return std::invoke(ADIO_FWD(c), ADIO_FWD(args)...);
 }
 
 }  // namespace detail
 
 // impl
-template <typename Callable>
-decltype(auto) regularize_invoke(Callable&& c) {
-    using ret_type = std::result_of_t<Callable()>;
-    return detail::regularize_invoke(ADIO_FWD(c), tag<ret_type>{});
+template <typename Callable, typename... Args>
+decltype(auto) regularize_invoke(Callable&& c, Args&&... args) {
+    using ret_type = std::result_of_t<Callable(Args...)>;
+    return detail::regularize_invoke(tag_v<ret_type>, ADIO_FWD(c), ADIO_FWD(args)...);
 }
 
 /**
