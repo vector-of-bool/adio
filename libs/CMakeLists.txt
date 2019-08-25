@@ -1,1 +1,39 @@
+function(adio_submodule name)
+    set(options)
+    set(args)
+    set(list_args LINKS DEFINES)
+    cmake_parse_arguments(PARSE_ARGV 1 ARG "${options}" "${args}" "${list_args}")
+    foreach(arg IN LISTS ARG_UNPARSED_ARGUMENTS)
+        message(SEND_ERROR "Unknown argument to adio_submodule(): ${arg}")
+    endforeach()
+
+    file(GLOB_RECURSE lib_sources CONFIGURE_DEPENDS src/*)
+    file(GLOB_RECURSE test_sources CONFIGURE_DEPENDS src/*.test.cpp)
+    list(REMOVE_ITEM lib_sources ${test_sources} ~~~)
+
+    add_library(adio-${name} STATIC ${lib_sources})
+    add_library(adio::${name} ALIAS adio-${name})
+    export_library(adio-${name} NAME ${name} HEADER_ROOTS src/)
+
+    if(ARG_LINKS)
+        target_link_libraries(adio-${name} ${ARG_LINKS})
+    endif()
+    if(ARG_DEFINES)
+        target_compile_definitions(adio-${name} ${ARG_DEFINES})
+    endif()
+
+    target_include_directories(adio-${name} PUBLIC src)
+    target_compile_features(adio-${name} PUBLIC cxx_std_17)
+
+    # Add tests for each test source that we found
+    foreach(test_fpath IN LISTS test_sources)
+        get_filename_component(test_name "${test_fpath}" NAME_WE)
+        file(RELATIVE_PATH relpath "${PROJECT_SOURCE_DIR}" "${test_fpath}")
+        get_filename_component(reldir "${relpath}" DIRECTORY)
+        add_executable("test-${test_name}" "${test_fpath}")
+        target_link_libraries("test-${test_name}" PRIVATE adio::${name} catch-main catch2::catch2)
+        catch_discover_tests(test-${test_name} TEST_PREFIX "${reldir}/${test_name}::")
+    endforeach()
+endfunction()
+
 add_subdirectory(core)
