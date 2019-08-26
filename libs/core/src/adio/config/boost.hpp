@@ -33,7 +33,6 @@ using boost::asio::asio_handler_invoke;
 using boost::asio::associated_allocator_t;
 using boost::asio::associated_executor_t;
 using boost::asio::async_completion;
-using boost::asio::basic_io_object;
 using boost::asio::dispatch;
 using boost::asio::execution_context;
 using boost::asio::executor;
