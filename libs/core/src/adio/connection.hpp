@@ -67,6 +67,9 @@ public:
         return comp.result.get();
     }
 
+    /**
+     * Disconnect from the database
+     */
     decltype(auto) disconnect(error_code& ec) { return _driver().disconnect(_impl, ec); }
     decltype(auto) disconnect() {
         error_code     ec;
@@ -83,6 +86,9 @@ public:
         return comp.result.get();
     }
 
+    /**
+     * Prepare a database query
+     */
     template <typename Q>
     decltype(auto) prepare(Q&& query, error_code& ec) {
         return _driver().prepare(_impl, ADIO_FWD(query), ec);
@@ -108,6 +114,9 @@ public:
         return comp.result.get();
     }
 
+    /**
+     * Execute a database query
+     */
     template <typename Q>
     decltype(auto) execute(Q&& query, error_code& ec) {
         return _driver().execute(_impl, ADIO_FWD(query), ec);
