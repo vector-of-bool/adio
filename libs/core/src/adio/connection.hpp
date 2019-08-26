@@ -35,18 +35,24 @@ public:
         , _impl(_driver().create_implementation(ctx, std::forward<Args>(args)...))
         , _executor(ctx.get_executor()) {}
 
+    /**
+     * Obtain an executor associated with this connection
+     */
     executor_type get_executor() const noexcept { return _executor; }
 
+    /**
+     * Connect the underlying database connection
+     */
     template <typename Arg>
     decltype(auto) connect(Arg&& arg, error_code& ec) {
-        return regularize([&] { return _driver().connect(_impl, ADIO_FORWARD(arg), ec); });
+        return _driver().connect(_impl, ADIO_FWD(arg), ec);
     }
     template <typename Arg>
     decltype(auto) connect(Arg&& arg) {
         error_code     ec;
-        decltype(auto) ret = connect(ADIO_FORWARD(arg), ec);
+        decltype(auto) ret = adio::regularize_invoke([&] { return connect(ADIO_FWD(arg), ec); });
         throw_if_error(ec, "connect()");
-        return ADIO_FORWARD_RET(ret);
+        return ADIO_FWD_RET(ret);
     }
     template <typename Arg, typename Token>
     decltype(auto) async_connect(Arg&& arg, Token&& h) {
@@ -54,21 +60,19 @@ public:
         auto ex    = get_associated_executor(h, _executor);
         auto alloc = get_associated_allocator(h);
         _driver().async_connect(_impl,
-                                ADIO_FORWARD(arg),
+                                ADIO_FWD(arg),
                                 alloc,
                                 ex,
                                 std::move(comp.completion_handler));
         return comp.result.get();
     }
 
-    decltype(auto) disconnect(error_code& ec) {
-        return regularize([&] { return _driver().disconnect(ec); });
-    }
+    decltype(auto) disconnect(error_code& ec) { return _driver().disconnect(_impl, ec); }
     decltype(auto) disconnect() {
         error_code     ec;
-        decltype(auto) ret = disconnect(ec);
+        decltype(auto) ret = adio::regularize_invoke([&] { return disconnect(ec); });
         throw_if_error(ec, "disconnect()");
-        return ADIO_FORWARD_RET(ret);
+        return ADIO_FWD_RET(ret);
     }
     template <typename Token>
     decltype(auto) async_disconnect(Token&& h) {
@@ -81,14 +85,14 @@ public:
 
     template <typename Q>
     decltype(auto) prepare(Q&& query, error_code& ec) {
-        return regularize([&] { return _driver().prepare(_impl, ADIO_FORWARD(query), ec); });
+        return _driver().prepare(_impl, ADIO_FWD(query), ec);
     }
     template <typename Q>
     decltype(auto) prepare(Q&& query) {
         error_code     ec;
-        decltype(auto) ret = prepare(ADIO_FORWARD(query), ec);
+        decltype(auto) ret = adio::regularize_invoke([&] { return prepare(ADIO_FWD(query), ec); });
         throw_if_error(ec, "prepare()");
-        return ADIO_FORWARD_RET(ret);
+        return ADIO_FWD_RET(ret);
     }
     template <typename Q, typename Token>
     decltype(auto) async_prepare(Q&& query, Token&& tok) {
@@ -97,7 +101,7 @@ public:
         auto                               alloc = get_associated_allocator(tok);
         auto                               ex    = get_associated_executor(tok, _executor);
         _driver().async_prepare(_impl,
-                                ADIO_FORWARD(query),
+                                ADIO_FWD(query),
                                 alloc,
                                 ex,
                                 std::move(comp.completion_handler));
@@ -106,21 +110,21 @@ public:
 
     template <typename Q>
     decltype(auto) execute(Q&& query, error_code& ec) {
-        return regularize([&] { return _driver().execute(_impl, ADIO_FORWARD(query), ec); });
+        return _driver().execute(_impl, ADIO_FWD(query), ec);
     }
     template <typename Q>
     decltype(auto) execute(Q&& query) {
         error_code     ec;
-        decltype(auto) ret = execute(ADIO_FORWARD(query), ec);
+        decltype(auto) ret = adio::regularize_invoke([&] { return execute(ADIO_FWD(query), ec); });
         throw_if_error(ec, "execute()");
-        return ADIO_FORWARD_RET(ret);
+        return ADIO_FWD_RET(ret);
     }
     template <typename Q, typename Token>
     decltype(auto) async_execute(Q&& query, Token&& tok) {
         using Signature = typename Driver::template execute_signature_t<Q>;
         async_completion<Token, Signature> comp(tok);
         _driver().async_execute(_impl,
-                                ADIO_FORWARD(query),
+                                ADIO_FWD(query),
                                 _executor,
                                 std::move(comp.completion_handler));
         return comp.result.get();

@@ -77,17 +77,15 @@ decltype(auto) unregularize(Value&& v) {
 // For `void_return`, we return void
 inline void unregularize(detail::void_return) {}
 
-template <typename T>
-T forward_return(std::remove_reference_t<T>& t) {
-    return static_cast<T&&>(t);
+template <typename T,
+          typename Ret = std::conditional_t<std::is_convertible_v<T, detail::void_return>, void, T>>
+Ret forward_return(std::remove_reference_t<T>& t) {
+    if constexpr (!std::is_void_v<Ret>) {
+        return static_cast<Ret&&>(t);
+    }
 }
 
-template <typename T>
-T forward_return(std::remove_reference_t<T>&& t) {
-    return static_cast<T&&>(t);
-}
-
-#define ADIO_FORWARD_RET(expr) ::adio::forward_return<decltype(expr)>(expr)
+#define ADIO_FWD_RET(expr) ::adio::forward_return<decltype(expr)>(expr)
 
 /**
  * Forward an argument as if using the reference category of a possibly

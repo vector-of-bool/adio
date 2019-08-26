@@ -22,4 +22,18 @@ TEST_CASE("Regularize") {
     static_assert(std::is_void_v<decltype(revoid_fn())>);
     // Won't compile, again:
     /// auto retval2 = revoid_fn();
+
+    int            i = 0;
+    decltype(auto) v = ADIO_FWD_RET(i);
+    static_assert(std::is_same_v<decltype(v), int>);
+
+    int&           i2 = i;
+    decltype(auto) v2 = ADIO_FWD_RET(i2);
+    static_assert(std::is_same_v<decltype(v2), int&>);
+
+    int&&          i3 = std::move(i);
+    decltype(auto) v3 = ADIO_FWD_RET(i3);
+    static_assert(std::is_same_v<decltype(v3), int&&>);
+
+    // auto t = ADIO_FWD_RET(retval);
 }
