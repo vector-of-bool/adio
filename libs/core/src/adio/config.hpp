@@ -14,7 +14,7 @@
 
 #define ADIO_ABI_VERSION v1
 
-#define ADIO_FWD(...) static_cast<decltype(__VA_ARGS__)>(__VA_ARGS__)
+#define ADIO_FWD(...) static_cast<decltype(__VA_ARGS__)&&>(__VA_ARGS__)
 
 #if ADIO_BACKEND_EXPAND(ADIO_BACKEND) == ADIO_BACKEND_Boost
 #include <adio/config/boost.hpp>
