@@ -114,7 +114,6 @@ public:
     const void* get_void_ptr() const noexcept { return _stmt_void; }
 
     template <typename... Args>
-
     sqlite3_statement& bind(Args&&... args) & {
         _bind(std::forward_as_tuple(ADIO_FWD(args)...),
               std::make_index_sequence<sizeof...(Args)>());
