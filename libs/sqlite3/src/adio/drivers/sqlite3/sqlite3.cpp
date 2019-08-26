@@ -144,3 +144,8 @@ void detail::sqlite3_statement::_bind_string(std::size_t idx, std::string_view s
                    ::sqlite3_bind_text(MY_STMT, idx + 1, str.data(), str.size(), SQLITE_TRANSIENT));
     throw_if_error(ec, "sqlite3_bind_text()");
 }
+
+std::int64_t detail::sqlite3_ext::last_insert_rowid() const noexcept {
+    auto db = static_cast<::sqlite3*>(_conn.get()._database_void);
+    return ::sqlite3_last_insert_rowid(db);
+}

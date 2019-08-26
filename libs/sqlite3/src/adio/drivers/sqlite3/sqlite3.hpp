@@ -128,6 +128,17 @@ public:
     }
 };
 
+class sqlite3_ext {
+    friend class sqlite3_conn;
+    std::reference_wrapper<class sqlite3_conn> _conn;
+
+    sqlite3_ext(sqlite3_conn& c)
+        : _conn(c) {}
+
+public:
+    std::int64_t last_insert_rowid() const noexcept;
+};
+
 class sqlite3_conn {
     void*  _database_void = nullptr;
     void*& _database_void_ref() { return _database_void; }
@@ -191,6 +202,9 @@ public:
     decltype(auto) execute(sqlite3_statement& st, error_code& ec) {
         return execute(adio::sql::program(std::ref(st), adio::sql::ignore_results), ec);
     }
+
+    friend class sqlite3_ext;
+    sqlite3_ext ext() noexcept { return sqlite3_ext(*this); }
 };
 
 }  // namespace detail
@@ -419,6 +433,9 @@ public:
 
     /// Obtain an instance of the SQLite error category.
     static const adio::error_category& error_category();
+
+    using extensions = detail::sqlite3_ext;
+    extensions ext(implementation_type& impl) const noexcept { return impl.ext(); }
 };
 
 inline error_code make_error_code(sqlite3::errc e) {

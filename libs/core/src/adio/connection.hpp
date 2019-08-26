@@ -140,6 +140,8 @@ public:
     }
 
     decltype(auto) last_error() const noexcept { return _driver().last_error(_impl); }
+
+    decltype(auto) ext() noexcept { return _driver().ext(_impl); }
 };
 
 ADIO_NAMESPACE_END

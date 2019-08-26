@@ -120,8 +120,7 @@ TEST_CASE_METHOD(sqlite_conn_fixture, "Create a vector of tuples") {
 TEST_CASE_METHOD(sqlite_conn_fixture, "Inline SQL in program") {
     connect_mem();
     make_simple_table_1();
-    auto stmt = conn.prepare("INSERT INTO my_table VALUES (?, ?)");
-    conn.execute(stmt.bind(12, "I am a string"));
+    conn.execute("INSERT INTO my_table VALUES (12, 'I am a string')"_sql);
 
     auto rows
         = conn.execute(adio::sql::program("SELECT * FROM my_table"_sql,
@@ -131,4 +130,12 @@ TEST_CASE_METHOD(sqlite_conn_fixture, "Inline SQL in program") {
     auto [int1, str1] = rows[0];
     CHECK(int1 == 12);
     CHECK(str1 == "I am a string");
+}
+
+TEST_CASE_METHOD(sqlite_conn_fixture, "Get last row ID") {
+    connect_mem();
+    make_simple_table_1();
+    conn.execute("INSERT INTO my_table VALUES (1, 'lolhi')"_sql);
+    auto rid = conn.ext().last_insert_rowid();
+    CHECK(rid == 1);
 }
