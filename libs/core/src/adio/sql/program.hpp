@@ -106,11 +106,8 @@ public:
         , _handler(ADIO_FWD(h)) {}
 };
 
-// template <typename Query, typename ResultHandler>
-// program(Query &q, ResultHandler &)->program<Query&, ResultHandler&>;
-
 template <typename Query, typename ResultHandler>
-program(Query&& q, ResultHandler &&)->program<std::decay_t<Query>, std::decay_t<ResultHandler>>;
+program(Query, ResultHandler)->program<Query, ResultHandler>;
 
 struct ignore_results_t {
     template <typename What>
